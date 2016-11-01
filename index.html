@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resize Image</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="container">
+      <h3>Resize image by dragging and dropping corners and edges</h3>
+      <canvas id="canvas" data-bind="attr: { width: canvasWidth, height: canvasHeight }, template: { afterRender: myAfterRender }, event: {mousemove: enablePulling, mousedown: getResize, mouseup: resizeImage}"></canvas>
+    </div>
+
+    <div style="display:none;">
+      <img id="source" src="https://i.imgur.com/3vZqsx9.jpg">
+    </div>
+    <script src="knockout-3.2.0.js"></script>
+    <script src="app.js"></script>
+
+  </body>
+</html>
