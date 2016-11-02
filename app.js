@@ -22,6 +22,7 @@ var ViewModel = function() {
   this.mouseDownY = NaN;
   this.mouseUpX = NaN;
   this.mouseUpY = NaN;
+  this.resizing = false;
 
 	// Scales the image accordingly to the maximum canvas size
   // so it will fit into the canvas and keep it's ratio between
@@ -58,70 +59,85 @@ var ViewModel = function() {
   };
 
 	// enablePulling recognizes in which area the cursor enters the image.
-  // This will activate resizing either diagonally, horizontally or vertically. 
-  // It sets the flag 'cursorPosition' that indicates where the user is resizing, 
-  // and indicates that by setting the cursor style accordingly
+  // It indicates the option to resize the image to the user:
+  // diagonally, horizontally or vertically.
   this.enablePulling = function(data, evt) {
     console.log('Mouser Over: In enablePulling');
     var canvasOffsetTop = self.canvas.offsetTop;
     var canvasOffsetLeft = self.canvas.offsetLeft;
 
-    // this.topLeftX = 0;
-  	// this.topLeftY = 0;
-  	// this.bottomRightX = NaN;
-  	// this.bottomRightY = NaN;
+    // relativeMouse is the relative position of the mouse within the canvas.
+    var relativeMouseX = evt.clientX - canvasOffsetLeft;
+    var relativeMouseY = evt.clientY - canvasOffsetTop;
+    if (!self.resizing && relativeMouseX > self.topLeftX && relativeMouseY > self.topLeftY && relativeMouseX < self.bottomRightX && relativeMouseY < self.bottomRightY) {
+      if (relativeMouseX - self.topLeftX < 20 && relativeMouseY - self.topLeftY < 20) {
+        console.log('Upper left corner');
+        self.canvas.style.cursor = "nwse-resize";
+      } else if (Math.abs(relativeMouseX - self.bottomRightX) < 20 && Math.abs(relativeMouseY - self.bottomRightY) < 20) {
+        console.log('Bottom right corner');
+        self.canvas.style.cursor = "nwse-resize";
+      } else if (relativeMouseX - self.topLeftX < 20 && Math.abs(relativeMouseY - self.bottomRightY) < 20) {
+        console.log('Bottom left corner');
+        self.canvas.style.cursor = "nesw-resize";
+      } else if (Math.abs(relativeMouseX - self.bottomRightX) < 20 && relativeMouseY - self.topLeftY < 20) {
+        console.log('Upper right corner');
+        self.canvas.style.cursor = "nesw-resize";
+      } else if (relativeMouseX - self.topLeftX > 20 && Math.abs(relativeMouseX - self.bottomRightX) > 20 && relativeMouseY - self.topLeftY < 20) {
+        console.log('Upper border');
+        self.canvas.style.cursor = "ns-resize";
+      } else if (relativeMouseX - self.topLeftX > 20 && Math.abs(relativeMouseX - self.bottomRightX) > 20 && Math.abs(relativeMouseY - self.bottomRightY) < 20) {
+        console.log('Bottom border');
+        self.canvas.style.cursor = "ns-resize";
+      } else if (relativeMouseX - self.topLeftX < 20 && Math.abs(relativeMouseY - self.bottomRightY) > 20 && relativeMouseY - self.topLeftY > 20) {
+        console.log('Left border');
+        self.canvas.style.cursor = "ew-resize";
+      } else if (Math.abs(relativeMouseX - self.bottomRightX) < 20 && Math.abs(relativeMouseY - self.bottomRightY) > 20 && relativeMouseY - self.topLeftY > 20) {
+        console.log('Right border');
+        self.canvas.style.cursor = "ew-resize";
+      }
+    }
+  };
+
+  this.getResize = function(data, evt) {
+    self.resizing = true;
+    self.mouseDownX = evt.clientX;
+    self.mouseDownY = evt.clientY;
+    var canvasOffsetTop = self.canvas.offsetTop;
+    var canvasOffsetLeft = self.canvas.offsetLeft;
 
     // relativeMouse is the relative position of the mouse within the canvas.
     var relativeMouseX = evt.clientX - canvasOffsetLeft;
     var relativeMouseY = evt.clientY - canvasOffsetTop;
-    console.log(relativeMouseX);
-    console.log(relativeMouseY);
-    if (relativeMouseX > self.topLeftX && relativeMouseY > self.topLeftY && relativeMouseX < self.bottomRightX && relativeMouseY < self.bottomRightY) {
-      console.log('inside picture!');
-      console.log('mouse x position: ' + relativeMouseX);
-      console.log('mouse y position: ' + relativeMouseY);
-      if (relativeMouseX - self.topLeftX < 40 && relativeMouseY - self.topLeftY < 40) {
-        console.log('Upper left corner');
-        self.canvas.style.cursor = "nwse-resize";
-        self.cursorPosition = "UpperLeftCorner";
-      } else if (Math.abs(relativeMouseX - self.bottomRightX) < 40 && Math.abs(relativeMouseY - self.bottomRightY) < 40) {
-        console.log('Bottom right corner');
-        self.canvas.style.cursor = "nwse-resize";
-        self.cursorPosition = "BottomRightCorner";
-      } else if (relativeMouseX - self.topLeftX < 40 && Math.abs(relativeMouseY - self.bottomRightY) < 40) {
-        console.log('Bottom left corner');
-        self.canvas.style.cursor = "nesw-resize";
-        self.cursorPosition = "BottomLeftCorner";
-      } else if (Math.abs(relativeMouseX - self.bottomRightX) < 40 && relativeMouseY - self.topLeftY < 40) {
-        console.log('Upper right corner');
-        self.canvas.style.cursor = "nesw-resize";
-        self.cursorPosition = "UpperRightCorner";
-      } else if (relativeMouseX - self.topLeftX > 40 && Math.abs(relativeMouseX - self.bottomRightX) > 40 && relativeMouseY - self.topLeftY < 40) {
-        console.log('Upper border');
-        self.canvas.style.cursor = "ns-resize";
-        self.cursorPosition = "UpperBorder";
-      } else if (relativeMouseX - self.topLeftX > 40 && Math.abs(relativeMouseX - self.bottomRightX) > 40 && Math.abs(relativeMouseY - self.bottomRightY) < 40) {
-        console.log('Bottom border');
-        self.canvas.style.cursor = "ns-resize";
-        self.cursorPosition = "BottomBorder";
-      } else if (relativeMouseX - self.topLeftX < 40 && Math.abs(relativeMouseY - self.bottomRightY) > 40 && relativeMouseY - self.topLeftY > 40) {
-        console.log('Left border');
-        self.canvas.style.cursor = "ew-resize";
-        self.cursorPosition = "LeftBorder";
-      } else if (Math.abs(relativeMouseX - self.bottomRightX) < 40 && Math.abs(relativeMouseY - self.bottomRightY) > 40 && relativeMouseY - self.topLeftY > 40) {
-        console.log('Right border');
-        self.cursorPosition = "RightBorder";
-        self.canvas.style.cursor = "ew-resize";
-      }
-    };
-  }
 
-  this.getResize = function(data, evt) {
-    console.log("Mouse Down: ")
-    self.mouseDownX = evt.clientX;
-    self.mouseDownY = evt.clientY;
-    console.log(self.mouseDownX);
-    console.log(self.mouseDownY);
+
+    // This will activate resizing either diagonally, horizontally or vertically.
+    // It sets the flag 'cursorPosition' that indicates where the user is resizing,
+    // from any of the four corners, or the four borders.
+    if (relativeMouseX - self.topLeftX < 20 && relativeMouseY - self.topLeftY < 20) {
+      self.canvas.style.cursor = "nwse-resize";
+      self.cursorPosition = "UpperLeftCorner";
+    } else if (Math.abs(relativeMouseX - self.bottomRightX) < 20 && Math.abs(relativeMouseY - self.bottomRightY) < 20) {
+      self.canvas.style.cursor = "nwse-resize";
+      self.cursorPosition = "BottomRightCorner";
+    } else if (relativeMouseX - self.topLeftX < 20 && Math.abs(relativeMouseY - self.bottomRightY) < 20) {
+      self.canvas.style.cursor = "nesw-resize";
+      self.cursorPosition = "BottomLeftCorner";
+    } else if (Math.abs(relativeMouseX - self.bottomRightX) < 20 && relativeMouseY - self.topLeftY < 20) {
+      self.canvas.style.cursor = "nesw-resize";
+      self.cursorPosition = "UpperRightCorner";
+    } else if (relativeMouseX - self.topLeftX > 20 && Math.abs(relativeMouseX - self.bottomRightX) > 20 && relativeMouseY - self.topLeftY < 20) {
+      self.canvas.style.cursor = "ns-resize";
+      self.cursorPosition = "UpperBorder";
+    } else if (relativeMouseX - self.topLeftX > 20 && Math.abs(relativeMouseX - self.bottomRightX) > 20 && Math.abs(relativeMouseY - self.bottomRightY) < 20) {
+      self.canvas.style.cursor = "ns-resize";
+      self.cursorPosition = "BottomBorder";
+    } else if (relativeMouseX - self.topLeftX < 20 && Math.abs(relativeMouseY - self.bottomRightY) > 20 && relativeMouseY - self.topLeftY > 20) {
+      self.canvas.style.cursor = "ew-resize";
+      self.cursorPosition = "LeftBorder";
+    } else if (Math.abs(relativeMouseX - self.bottomRightX) < 20 && Math.abs(relativeMouseY - self.bottomRightY) > 20 && relativeMouseY - self.topLeftY > 20) {
+      self.canvas.style.cursor = "ew-resize";
+      self.cursorPosition = "RightBorder";
+    }
   };
 
   this.resizeImage = function(data, evt) {
@@ -189,7 +205,8 @@ var ViewModel = function() {
     console.log(width);
     console.log(height);
     self.context.drawImage(self.image, 0, 0, self.imageWidth, self.imageHeight, self.topLeftX, self.topLeftY, width, height);
-  }
+    self.resizing = false;
+  };
 
   this.scaleImage();
 };
