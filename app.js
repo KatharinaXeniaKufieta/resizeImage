@@ -29,7 +29,6 @@ var ViewModel = function() {
   // width and height.
   this.scaleImage = function() {
     var ratio = self.imageHeight / self.imageWidth;
-    console.log(ratio);
     if (self.imageHeight > self.imageWidth &&
       self.imageHeight > MAX_CANVAS_SIZE) {
       self.canvasHeight(MAX_CANVAS_SIZE);
@@ -52,7 +51,6 @@ var ViewModel = function() {
 
 	// After rendering the canvas, draw the image inside the canvas.
   this.myAfterRender = function() {
-    console.log('after render');
     self.context.fillStyle = 'white';
     self.context.fillRect(0, 0, self.canvasWidth(), self.canvasHeight());
     self.context.drawImage(self.image, 0, 0, self.imageWidth, self.imageHeight, self.topLeftX, self.topLeftY, self.canvasWidth() - 2*CANVAS_MARGIN, self.canvasHeight() - 2*CANVAS_MARGIN);
@@ -62,7 +60,6 @@ var ViewModel = function() {
   // It indicates the option to resize the image to the user:
   // diagonally, horizontally or vertically.
   this.enablePulling = function(data, evt) {
-    console.log('Mouser Over: In enablePulling');
     var canvasOffsetTop = self.canvas.offsetTop;
     var canvasOffsetLeft = self.canvas.offsetLeft;
 
@@ -95,6 +92,8 @@ var ViewModel = function() {
         console.log('Right border');
         self.canvas.style.cursor = "ew-resize";
       }
+    } else if (!self.resizing) {
+      self.canvas.style.cursor = "auto";
     }
   };
 
@@ -141,7 +140,6 @@ var ViewModel = function() {
   };
 
   this.resizeImage = function(data, evt) {
-    console.log("Mouse Up");
     self.mouseUpX = evt.clientX;
     self.mouseUpY = evt.clientY;
     var upper = false;
@@ -199,11 +197,9 @@ var ViewModel = function() {
     }
 
     self.context.fillStyle = 'rgb(207, 214, 217)';
-    self.context.fillRect(CANVAS_MARGIN, CANVAS_MARGIN, self.canvasWidth() - CANVAS_MARGIN*2, self.canvasHeight() - CANVAS_MARGIN*2);
+    self.context.fillRect(CANVAS_MARGIN, CANVAS_MARGIN, self.canvasWidth() - CANVAS_MARGIN*2 + 1, self.canvasHeight() - CANVAS_MARGIN*2 + 1);
     var width = self.bottomRightX - self.topLeftX;
     var height = self.bottomRightY - self.topLeftY;
-    console.log(width);
-    console.log(height);
     self.context.drawImage(self.image, 0, 0, self.imageWidth, self.imageHeight, self.topLeftX, self.topLeftY, width, height);
     self.resizing = false;
   };
@@ -212,6 +208,5 @@ var ViewModel = function() {
 };
 
 window.onload = function () {
-  console.log('start applying bindings');
   ko.applyBindings(new ViewModel());// This makes Knockout get to work
 }
